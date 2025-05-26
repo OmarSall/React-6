@@ -1,5 +1,6 @@
 import {useCallback, useEffect, useState} from "react";
 import styles from "./TodosList.module.css";
+import { Link } from "react-router"
 
 export default function TodosList() {
     const [todos, setTodos] = useState([]);
@@ -34,8 +35,8 @@ export default function TodosList() {
                     <p>
                         <span className={styles.title}>{title}</span>
                         – {completed ? "✅ Done" : "❌ Not done"}
-
                     </p>
+                    <Link to={`/todos/${id}`}>Read more</Link>
                 </div>
             ))}
         </div>

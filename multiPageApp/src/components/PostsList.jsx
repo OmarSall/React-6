@@ -1,5 +1,6 @@
 import {useCallback, useEffect, useState} from "react";
 import styles from "./PostsList.module.css";
+import { Link } from "react-router"
 
 export default function PostsList() {
     const [posts, setPosts] = useState([]);
@@ -32,6 +33,7 @@ export default function PostsList() {
             {posts.map(({ title, body, id }) => (
                 <div key={id} className={styles.post}>
                     <p className={styles.title}><strong>{title}</strong></p>
+                    <Link to={`/posts/${id}`}>Read more</Link>
                     <p>{body}</p>
                 </div>
             ))}
