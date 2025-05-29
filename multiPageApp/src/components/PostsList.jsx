@@ -10,13 +10,14 @@ export default function PostsList() {
         try {
             const response = await fetch("https://jsonplaceholder.typicode.com/posts");
             if (!response.ok) {
-                throw new Error("Failed to load posts.");
+                const message = await response.text();
+                throw new Error(`HTTP error! Status: ${response.status} - ${message}`)
             }
             const data = await response.json();
             setPosts(data);
         } catch (error) {
             setError("Failed to load posts. Please try again later.");
-            console.error(error);
+            console.error("Error fetching post:", error);
         }
     }, []);
 

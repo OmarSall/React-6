@@ -1,23 +1,26 @@
-import { useEffect, useState,  useCallback } from "react";
-import { useNavigate, useParams } from "react-router";
+import {useEffect, useState, useCallback} from "react";
+import {useNavigate, useParams} from "react-router";
 import styles from "./TodosList.module.css";
 
 export default function TodoDetails() {
     const navigate = useNavigate();
-    const { id } = useParams()
-    const [todo, setTodo] = useState([]);
+    const {id} = useParams()
+    const [todo, setTodo] = useState(null);
     const [error, setError] = useState(null);
 
     const handleDelete = async () => {
-        await fetch(`https://jsonplaceholder.typicode.com/todos/${id}`,
-            {
+        try {
+            await fetch(`https://jsonplaceholder.typicode.com/todos/${id}`, {
                 method: "DELETE",
             });
+            navigate("/todos");
+        } catch (err) {
+            console.error(err);
+            setError("Failed to delete the todo.");
+        }
+    };
 
-        navigate("/todos");
-    }
-
-    const fetchTodo = useCallback( async () => {
+    const fetchTodo = useCallback(async () => {
         if (!id) {
             return;
         }
@@ -25,44 +28,45 @@ export default function TodoDetails() {
         try {
             const response = await fetch(`https://jsonplaceholder.typicode.com/todos/${id}`)
             if (!response.ok) {
-                throw new Error("Failed to load todo.");
+                const message = await response.text();
+                throw new Error(`HTTP error! Status: ${response.status} - ${message}`)
             }
             const data = await response.json()
             setTodo(data);
         } catch (error) {
-            console.error(error);
-            setError("Something went wrong while loading the todo.")
+            setError("Failed to load the todo. Please try again later.");
+            console.error("Error fetching todo:", error);
         }
     }, [id]);
 
     useEffect(() => {
+        setTodo(null);
         (async () => {
             await fetchTodo();
         })();
     }, [fetchTodo])
 
-    if (error) {
-        return <p className={styles.error}>{error}</p>;
-    }
-
-
-    if (!todo) {
-        return <p>Loading...</p>;
-    }
-
-    const { title, completed } = todo;
-
     return (
         <div>
             <h2>To-do of id: {id}</h2>
+
             {error && <p className={styles.error}>{error}</p>}
-            <button onClick={handleDelete}>Delete</button>
-            <div key={id} className={styles.todoItem}>
-                <p>
-                    <span className={styles.title}>{title}</span>
-                    – {completed ? "✅ Done" : "❌ Not done"}
-                </p>
-            </div>
+
+            {!error && !todo ? (
+                <p>Loading...</p>
+            ) : (
+                todo && (
+                    <>
+                        <button onClick={handleDelete}>Delete</button>
+                        <div key={todo.id} className={styles.todoItem}>
+                            <p>
+                                <span className={styles.title}>{todo.title}</span>
+                                – {todo.completed ? "✅ Done" : "❌ Not done"}
+                            </p>
+                        </div>
+                    </>
+                )
+            )}
         </div>
     );
-};
+}

@@ -10,13 +10,14 @@ export default function TodosList() {
         try {
             const response = await fetch("https://jsonplaceholder.typicode.com/todos");
             if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
+                const message = await response.text();
+                throw new Error(`HTTP error! Status: ${response.status} - ${message}`);
             }
             const data = await response.json();
             setTodos(data);
         } catch (error) {
             setError("Failed to load todos. Please try again later.");
-            console.error(error);
+            console.error("Error fetching todos:", error);
         }
     }, []);
 
